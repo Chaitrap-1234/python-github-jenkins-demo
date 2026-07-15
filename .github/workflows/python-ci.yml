@@ -1,0 +1,47 @@
+name: Python CI with Jenkins
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  APP_NAME: ${{ vars.APP_NAME }}
+  OWNER: ${{ vars.OWNER }}
+  ENVIRONMENT: ${{ vars.ENVIRONMENT }}
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Display Environment Variables
+        run: |
+          echo "Application : $APP_NAME"
+          echo "Owner       : $OWNER"
+          echo "Environment : $ENVIRONMENT"
+
+      - name: Execute Python Application
+        run: python app.py
+
+      - name: Trigger Jenkins Job
+        run: |
+          curl -X POST \
+          http://${{ secrets.JENKINS_URL }}/job/PythonDemo/build \
+          --user "${{ secrets.JENKINS_USER }}:${{ secrets.JENKINS_TOKEN }}"
