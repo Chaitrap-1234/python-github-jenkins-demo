@@ -32,43 +32,12 @@ jobs:
             pip install -r requirements.txt
           fi
 
-      - name: Display Environment Variables
-        run: |
-          echo "APP_NAME=$APP_NAME"
-          echo "OWNER=$OWNER"
-          echo "ENVIRONMENT=$ENVIRONMENT"
-
-      - name: Execute Python Application
+      - name: Run Python Application
         run: python app.py
-
-      - name: Verify Jenkins Configuration
-        run: |
-          echo "Checking Jenkins configuration..."
-
-          if [ -z "${{ secrets.JENKINS_URL }}" ]; then
-            echo "ERROR: JENKINS_URL secret is not configured."
-            exit 1
-          fi
-
-          if [ -z "${{ secrets.JENKINS_USER }}" ]; then
-            echo "ERROR: JENKINS_USER secret is not configured."
-            exit 1
-          fi
-
-          if [ -z "${{ secrets.JENKINS_TOKEN }}" ]; then
-            echo "ERROR: JENKINS_TOKEN secret is not configured."
-            exit 1
-          fi
-
-          echo "Jenkins URL: ${{ secrets.JENKINS_URL }}"
-          echo "Jenkins configuration looks good."
 
       - name: Trigger Jenkins Job
         run: |
-          curl --fail \
+          curl -v \
             --user "${{ secrets.JENKINS_USER }}:${{ secrets.JENKINS_TOKEN }}" \
             -X POST \
-            "${{ secrets.JENKINS_URL }}/job/PythonDemo/build"
-
-      - name: Success
-        run: echo "GitHub Actions completed successfully."
+            "${{ secrets.JENKINS_URL }}/job/python-github-jenkins-demo/build"
